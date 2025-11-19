@@ -249,23 +249,23 @@ void main() {
 
 **Penjelasan Singkat:**
 
-### **Person**
+**Person**
 
 * Memiliki property `name`, `age`.
 * Constructor untuk mengisi data.
 * Method `sayHello()`.
 
-### **Animal (Induk)**
+**Animal (Induk)**
 
 * Property `name`.
 * Method dasar `sound()`.
 
-### **Dog & Cat (Anak)**
+**Dog & Cat (Anak)**
 
 * `extends Animal` → mewarisi class induk.
 * Menggunakan `@override` untuk membuat suara berbeda.
 
-### **main()**
+**main()**
 
 * Membuat objek Person, Dog, Cat.
 * Memanggil method masing-masing objek.
