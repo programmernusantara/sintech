@@ -443,7 +443,7 @@ void main() {
 
 ---
 
-## Penjelasan
+Penjelasan
 
 1. `{this.id}` → memberikan nilai ke property
 2. `extends Notifikasi` → class anak
