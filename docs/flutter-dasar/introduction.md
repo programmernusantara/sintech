@@ -147,3 +147,141 @@ class _MyAppState extends State<MyApp> {
 * `Text('$counter')` → Menampilkan nilai counter.
 
 ---
+
+## Text
+
+`Text` digunakan untuk menampilkan tulisan di layar.  
+Widget ini mendukung berbagai gaya seperti warna, ukuran, dekorasi, dan background.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Widget Dasar - Text'),
+        ),
+        body: const Center(
+          child: Text(
+            'Hello, World!',
+            style: TextStyle(
+              fontSize: 24,
+              color: Colors.blue,
+              backgroundColor: Colors.yellow,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Algoritma:**
+
+* `Text()` → Menampilkan teks.
+* `style: TextStyle()` → Mengatur gaya teks.
+* `fontSize` → Ukuran huruf.
+* `color` → Warna teks.
+* `backgroundColor` → Latar belakang teks.
+* `decoration` → Garis dekorasi seperti underline, overline, dan lineThrough.
+
+---
+
+## Icon
+
+`Icon` digunakan untuk menampilkan ikon dari library bawaan Flutter, seperti ikon menu, hati, kamera, dan lainnya.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Widget Dasar - Icon'),
+        ),
+        body: const Center(
+          child: Icon(
+            Icons.favorite,
+            color: Colors.pink,
+            size: 100,
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Algoritma:**
+
+* `Icon(Icons.favorite)` → Menampilkan ikon hati.
+* `color` → Mengubah warna ikon.
+* `size` → Mengatur ukuran ikon.
+
+---
+
+## Image
+
+`Image` digunakan untuk menampilkan gambar.
+Flutter mendukung gambar dari **internet**, **asset lokal**, maupun **file lokal**.
+
+Contoh berikut menggunakan gambar dari internet.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Widget Dasar - Image'),
+        ),
+        body: Center(
+          child: Image.network(
+            'https://picsum.photos/200/300',
+            width: 200,
+            height: 300,
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Algoritma:**
+
+* `Image.network()` → Mengambil dan menampilkan gambar dari internet.
+* `width` dan `height` → Mengatur ukuran gambar.
+* `fit: BoxFit.cover` → Menyesuaikan gambar agar memenuhi area tanpa distorsi.
+
+---
