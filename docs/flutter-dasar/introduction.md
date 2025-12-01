@@ -285,3 +285,58 @@ class MyApp extends StatelessWidget {
 * `fit: BoxFit.cover` → Menyesuaikan gambar agar memenuhi area tanpa distorsi.
 
 ---
+
+## Container
+
+`Container` adalah salah satu widget paling serbaguna di Flutter.  
+Widget ini digunakan untuk memberikan **padding, margin, ukuran, warna, border, radius**, dan berbagai dekorasi lain pada sebuah elemen tampilan.
+
+`Container` hanya dapat memiliki **satu child widget**, misalnya `Text`, `Icon`, `Image`, atau widget lainnya.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Widget Dasar - Container'),
+        ),
+        body: Center(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 50,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+---
+
+**Penjelasan:**
+
+* `Container()` → Membungkus widget lain untuk menambahkan dekorasi.
+* `padding` → Memberikan jarak di dalam area container.
+* `decoration: BoxDecoration()` → Mengatur desain seperti warna, border, radius.
+* `color` → Warna background container.
+* `borderRadius` → Membuat sudut membulat.
+* `child: Icon()` → Isi container, bisa berupa widget apa pun.
