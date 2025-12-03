@@ -73,7 +73,7 @@ class ProfilPage extends StatelessWidget {
 }
 ```
 
-**Penjelasan**
+**Penjelasan:**
 
 * `Navigator.push()` → Membuka halaman baru.
 * `MaterialPageRoute()` → Membuat rute ke halaman tujuan.
@@ -127,7 +127,7 @@ class App extends StatelessWidget {
 }
 ```
 
-**Penjelasan**
+**Penjelasan:**
 
 * `DefaultTabController` → Mengatur jumlah tab.
 * `TabBar` → Daftar tab di bagian atas.
@@ -250,7 +250,7 @@ class VideoPage extends StatelessWidget {
 }
 ```
 
-**Penjelasan**
+**Penjelasan:**
 
 * `Drawer` → Membuat menu samping.
 * `DrawerHeader` → Bagian header pada drawer.
