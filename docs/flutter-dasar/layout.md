@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# 🧩 Layout
+# 📐 Layout
 
 Layout adalah fondasi dari setiap tampilan (UI) yang kamu lihat di aplikasi Flutter. Tanpa layout, elemen seperti **teks, tombol, gambar, card, atau ikon** tidak akan memiliki posisi, ukuran, atau susunan yang teratur.
 
@@ -158,7 +158,10 @@ class MyApp extends StatelessWidget {
 
 ---
 
-## Demo
+## ListView
+
+`ListView` digunakan untuk menampilkan daftar widget secara **scroll vertikal**.
+Cocok untuk menampilkan data yang jumlahnya tidak terlalu banyak.
 
 ```jsx
 import 'package:flutter/material.dart';
@@ -174,45 +177,208 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('Layout Dasar Flutter')),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  const CircleAvatar(
-                    radius: 40,
-                    backgroundImage: NetworkImage('https://picsum.photos/200'),
-                  ),
-                  Container(
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 3),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(Icons.person, size: 32),
-                  SizedBox(width: 10),
-                  Text('John Doe', style: TextStyle(fontSize: 20)),
-                ],
-              ),
-            ],
-          ),
+        appBar: AppBar(title: const Text('Layout - ListView')),
+        body: ListView(
+          children: const [
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Zaskia Aurani'),
+              subtitle: Text('0812 3456 7890'),
+              trailing: Icon(Icons.call),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Wildan FQ'),
+              subtitle: Text('0821 7788 9900'),
+              trailing: Icon(Icons.call),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Arhan Permadi'),
+              subtitle: Text('0857 1122 3344'),
+              trailing: Icon(Icons.call),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Aneska Putri'),
+              subtitle: Text('0838 6655 4411'),
+              trailing: Icon(Icons.call),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Dimas Kurniawan'),
+              subtitle: Text('0895 2211 9933'),
+              trailing: Icon(Icons.call),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 ```
+
+**Penjelasan:**
+
+* `ListView()` → Membuat daftar scroll vertikal.
+* `children` → Menampung widget-widget list.
+* `ListTile` → Widget standar untuk item list.
+* `leading` → Icon di sebelah kiri.
+* `title` → Judul item.
+* `subtitle` → Deskripsi kecil di bawah title.
+* `trailing` → Icon di sebelah kanan.
+
+---
+
+## GridView
+
+`GridView` digunakan untuk menampilkan widget dalam bentuk **grid (kotak-kotak)**.
+Cocok untuk galeri foto atau menu aplikasi.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Layout - GridView')),
+        body: GridView.count(
+          crossAxisCount: 3,
+          children: [
+            Image.network('https://picsum.photos/200?image=25'),
+            Image.network('https://picsum.photos/200?image=26'),
+            Image.network('https://picsum.photos/200?image=27'),
+            Image.network('https://picsum.photos/200?image=28'),
+            Image.network('https://picsum.photos/200?image=29'),
+            Image.network('https://picsum.photos/200?image=30'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Penjelasan:**
+
+* `GridView.count()` → Grid dengan jumlah kolom tertentu.
+* `crossAxisCount: 3` → Menampilkan 3 kolom.
+* `children` → Berisi widget-widget yang ditampilkan dalam grid.
+* `Image.network` → Menampilkan gambar dari URL.
+
+---
+
+## ListView.builder
+
+Digunakan untuk menampilkan list yang **jumlahnya banyak** atau dinamis.
+Lebih efisien karena hanya membangun item yang terlihat di layar.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  final List<String> task = [
+    'Task 1',
+    'Task 2',
+    'Task 3',
+    'Task 4',
+    'Task 5',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Layout - ListView.builder')),
+        body: ListView.builder(
+          itemCount: task.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              leading: const Icon(Icons.check_circle_outline),
+              title: Text(task[index]),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Penjelasan:**
+
+* `ListView.builder()` → List yang dibangun sesuai kebutuhan.
+* `itemCount` → Banyaknya item list.
+* `itemBuilder` → Fungsi untuk membuat setiap item.
+* `index` → Posisi item saat ini.
+* `ListTile` → Tampilan item list.
+
+---
+
+## GridView.builder
+
+Grid versi builder, cocok untuk item banyak seperti galeri atau produk toko.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  final List<String> imageUrls = [
+    'https://picsum.photos/250?image=237',
+    'https://picsum.photos/250?image=238',
+    'https://picsum.photos/250?image=239',
+    'https://picsum.photos/250?image=240',
+    'https://picsum.photos/250?image=241',
+    'https://picsum.photos/250?image=242',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Layout - GridView.builder')),
+        body: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+          ),
+          itemCount: imageUrls.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Image.network(imageUrls[index]);
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Penjelasan:**
+
+* `GridView.builder()` → Grid dinamis dan efisien.
+* `gridDelegate` → Mengatur bentuk grid.
+* `SliverGridDelegateWithFixedCrossAxisCount` → Jumlah kolom tetap.
+* `crossAxisCount: 3` → Grid berisi 3 kolom.
+* `itemCount` → Jumlah item.
+* `itemBuilder` → Membangun widget berdasarkan index.
 
 ---
