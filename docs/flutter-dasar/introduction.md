@@ -53,7 +53,7 @@ void main() {
 
 ## StatelessWidget
 
-`StatelessWidget` adalah widget yang **tidak memiliki state**, sehingga tampilan bersifat permanen selama aplikasi berjalan.
+`StatelessWidget` adalah widget yang **tidak memiliki state**, sehingga tampilan bersifat permanen selama aplikasi berjalan, nantinya aplikasi kita di bungkus di code ini.
 
 ```jsx
 import 'package:flutter/material.dart';
@@ -90,62 +90,6 @@ class MyApp extends StatelessWidget {
 * `Scaffold` → Layout dasar halaman.
 * `AppBar` → Menampilkan judul di bagian atas aplikasi.
 * `Text('Hello, World')` → Menampilkan teks statis.
-
----
-
-## StatefulWidget
-
-`StatefulWidget` adalah widget yang dapat **berubah tampilannya** ketika data berubah, misalnya saat tombol ditekan atau nilai diperbarui.
-
-```jsx
-import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  int counter = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Instagram'),
-        ),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                counter++;
-              });
-            },
-            child: Text('$counter'),
-          ),
-        ),
-      ),
-    );
-  }
-}
-```
-
-**Algoritma:**
-
-* `class MyApp extends StatefulWidget` → Widget yang memiliki data yang bisa berubah.
-* `createState()` → Menghubungkan widget ke class state.
-* `class _MyAppState extends State<MyApp>` → Menyimpan dan mengatur data yang dinamis.
-* `int counter = 0;` → Data yang akan ditampilkan.
-* `setState()` → Memperbarui tampilan ketika state berubah.
-* `ElevatedButton` → Tombol interaktif.
-* `Text('$counter')` → Menampilkan nilai counter.
 
 ---
 
