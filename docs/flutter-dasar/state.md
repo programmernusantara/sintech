@@ -4,28 +4,54 @@ sidebar_position: 5
 
 # 🧠 State Management
 
-State Management adalah cara **mengatur**, **menyimpan**, dan **memperbarui data** dalam aplikasi Flutter.  
-Dalam Flutter, *state* adalah **informasi yang dapat berubah**, dan setiap perubahan akan **mempengaruhi tampilan UI**.
+State Management adalah cara Flutter untuk menyimpan, mengatur, dan memperbarui data yang digunakan untuk membangun tampilan (UI).
 
 ---
 
-Jenis Widget Berdasarkan State
+## Jenis State
 
-| Widget | Deskripsi | Contoh Penggunaan |
-|--------|-----------|--------------------|
-| **StatelessWidget** | UI **tidak berubah** setelah widget dibangun. Tidak menyimpan data yang dapat berubah. | Teks statis, ikon, gambar |
-| **StatefulWidget** | UI **dapat berubah** saat aplikasi berjalan. Menyimpan data yang dapat diperbarui. | Counter, form, animasi, data API |
+Flutter memiliki dua jenis widget berdasarkan bagaimana mereka menangani perubahan data.
 
-📝 Intinya
+🧱 StatelessWidget
 
-- **StatelessWidget** → untuk UI yang *tetap* / tidak berubah.  
-- **StatefulWidget** → untuk UI yang *berubah* berdasarkan data atau interaksi pengguna.
+Widget yang **tidak memiliki data yang berubah**. Setelah dibangun, UI akan tetap sama.
+
+**Cocok digunakan untuk:**
+
+* Teks statis
+* Gambar
+* Ikon
+* Layout statis
 
 ---
 
-🧪 Contoh Aplikasi Counter
+🔄 StatefulWidget
 
-Di bawah ini contoh aplikasi sederhana menggunakan `StatefulWidget` untuk menambah dan mengurangi angka:
+Widget yang **dapat berubah saat aplikasi berjalan**.
+Memiliki objek `State` yang menyimpan dan memperbarui data.
+
+**Cocok digunakan untuk:**
+
+* Counter
+* Form input
+* Data dari API
+* Animasi
+* Halaman yang membutuhkan update otomatis
+
+---
+
+📝 Perbedaan StatelessWidget vs StatefulWidget
+
+| Jenis               | Perubahan UI        | Penyimpanan Data                     |
+| ------------------- | ------------------- | ------------------------------------ |
+| **StatelessWidget** | Tidak dapat berubah | Tidak memiliki state                 |
+| **StatefulWidget**  | Dapat berubah       | Memiliki state yang dapat diperbarui |
+
+---
+
+## setState()
+
+`setState()` digunakan untuk **memberi tahu Flutter** bahwa ada data yang berubah dan UI harus diperbarui.
 
 ```jsx
 import 'package:flutter/material.dart';
@@ -75,7 +101,6 @@ class _CounterPageState extends State<CounterPage> {
               ),
             ),
             const SizedBox(height: 24),
-
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -98,7 +123,6 @@ class _CounterPageState extends State<CounterPage> {
     );
   }
 
-  /// Widget tombol reusable agar kode lebih rapi.
   Widget _buildButton({
     required IconData icon,
     required String label,
@@ -121,43 +145,99 @@ class _CounterPageState extends State<CounterPage> {
 
 ---
 
-**📘 Penjelasan State pada Contoh di Atas:**
+**Penjelasan:**
 
-🔹 1. Menyimpan Data (State)
+**`int angka = 0;`**
 
-```dart
-int angka = 0;
+Variabel yang disimpan di dalam class State.
+Nilai inilah yang akan berubah dan digunakan untuk memperbarui UI.
+
+**`void tambah() => setState(() => angka++);`**
+
+setState() memberi tahu Flutter bahwa **data sudah berubah**, sehingga Flutter akan menjalankan ulang fungsi build() agar UI menampilkan angka terbaru.
+
+**`void kurang() => setState(() => angka--);`**
+
+Sama seperti tambah(), perubahan nilai angka dibungkus di dalam setState() agar UI diperbarui.
+
+**`build()`**
+
+Fungsi yang akan **dipanggil ulang setiap kali setState() dijalankan**.
+Tujuannya untuk menampilkan data terbaru ke layar.
+
+**`_buildButton()`**
+
+Fungsi helper untuk membuat tombol agar kode tetap rapi dan tidak repetitif.
+
+---
+
+## initState()
+
+`initState()` adalah fungsi yang dipanggil **sekali saat widget pertama kali dibuat**.
+
+```jsx
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const App());
+}
+
+class App extends StatefulWidget {
+  const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  String pesan = "Belum disiapkan";
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        pesan = "Halaman sudah siap!";
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Instagram')),
+        body: Center(
+          child: Text(
+            pesan,
+            style: const TextStyle(fontSize: 20),
+          ),
+        ),
+      ),
+    );
+  }
+}
 ```
 
-Variabel ini disimpan di dalam class `State`, sehingga dapat berubah saat aplikasi berjalan.
-
 ---
 
-🔹 2. Memperbarui Data Menggunakan `setState()`
+**Penjelasan:**
 
-```dart
-void tambah() => setState(() => angka++);
-void kurang() => setState(() => angka--);
-```
+**`initState()`**
 
-`setState()` memberi tahu Flutter bahwa ada perubahan data, sehingga UI harus dibangun ulang.
+Dipanggil **sekali saja** ketika widget pertama kali ditampilkan. Digunakan untuk inisialisasi data awal.
 
----
+**`super.initState()`**
 
-🔹 3. Proses Saat Tombol Ditekan
+Wajib dipanggil agar lifecycle bawaan Flutter tetap berjalan dengan benar.
 
-Ketika tombol **Tambah** atau **Kurang** ditekan:
+**`Future.delayed(...)`**
 
-1. Nilai `angka` berubah
-2. Fungsi `setState()` dijalankan
-3. Flutter membangun ulang widget
-4. Tampilan angka diperbarui
+Contoh simulasi proses "menunggu", seperti memuat data dari API.
 
----
+**`setState(() { pesan = "Halaman sudah siap!"; });`**
 
-📌 Kenapa Harus Menggunakan `setState()`?
-
-Karena Flutter menggunakan sistem *reactive UI*, sehingga UI hanya berubah jika Flutter diberi tahu ada perubahan.
-Tanpa `setState()`, perubahan data **tidak akan** memengaruhi UI.
+Mengubah nilai state sehingga UI ikut berubah setelah delay 1 detik.
 
 ---
