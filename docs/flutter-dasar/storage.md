@@ -29,7 +29,7 @@ SQLite adalah database lokal berbasis SQL, mirip dengan MySQL namun berjalan tan
 
 ---
 
-**Contoh Sederhana SharedPreferences (Fondasi untuk Pemula):**
+**Contoh Aplikasi Todo List:**
 
 ```jsx
 import 'package:flutter/material.dart';
@@ -39,7 +39,8 @@ void main() {
   runApp(const MyApp());
 }
 
-/// StatefulWidget digunakan karena nilai counter akan berubah (dinamis).
+/// Aplikasi Todo List sederhana dengan penyimpanan lokal.
+/// Data disimpan menggunakan SharedPreferences.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -47,203 +48,313 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-/// State berisi logika aplikasi: membaca, menyimpan, dan mengubah counter.
 class _MyAppState extends State<MyApp> {
-  /// Menyimpan nilai counter saat ini (state utama aplikasi).
-  int counter = 0;
+  /// Menyimpan seluruh daftar task.
+  List<String> tasks = [];
+
+  /// Controller untuk mengambil input dari TextField.
+  final TextEditingController taskController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    loadCounter(); // Ambil nilai counter yang pernah disimpan.
+    loadTasks(); // Memuat data saat aplikasi dibuka.
   }
 
-  /// Mengambil nilai counter dari SharedPreferences.
-  /// Jika tidak ada, gunakan nilai default = 0.
-  Future<void> loadCounter() async {
+  /// Memuat data task dari penyimpanan lokal.
+  Future<void> loadTasks() async {
     final prefs = await SharedPreferences.getInstance();
-    counter = prefs.getInt('counter') ?? 0;
-    setState(() {}); // Update UI setelah data berhasil dimuat.
+    tasks = prefs.getStringList('tasks') ?? [];
+    setState(() {});
   }
 
-  /// Menyimpan nilai counter ke local storage.
-  Future<void> saveCounter() async {
+  /// Menambahkan task baru dan menyimpannya.
+  Future<void> addTask() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('counter', counter);
+
+    // Ambil data terbaru dari storage.
+    tasks = prefs.getStringList('tasks') ?? [];
+
+    final newTask = taskController.text.trim();
+    if (newTask.isEmpty) return; // Mencegah input kosong.
+
+    tasks.add(newTask); // Tambahkan ke list.
+
+    await prefs.setStringList('tasks', tasks); // Simpan.
+
+    taskController.clear(); // Bersihkan input.
+    setState(() {}); // Perbarui UI.
   }
 
-  /// Menambah nilai counter, lalu simpan perubahannya.
-  void increment() {
-    setState(() {
-      counter++;
-    });
-    saveCounter();
-  }
-
-  /// Reset counter ke 0 dan hapus dari local storage.
-  Future<void> resetCounter() async {
+  /// Menghapus task berdasarkan index.
+  Future<void> deleteTask(int index) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('counter');
-    setState(() {
-      counter = 0;
-    });
+
+    tasks.removeAt(index);
+
+    await prefs.setStringList('tasks', tasks); // Simpan perubahan.
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // Hilangkan banner debug.
       home: Scaffold(
-        backgroundColor: Colors.grey[100],
         appBar: AppBar(
+          title: const Text('Todo List'),
           centerTitle: true,
-          title: const Text(
-            'Counter App',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
         ),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "$counter",
-                style: const TextStyle(fontSize: 60),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Tambah counter
-                  ElevatedButton(
-                    onPressed: increment,
-                    child: const Icon(Icons.add),
-                  ),
 
-                  const SizedBox(width: 10),
-
-                  // Reset counter
-                  ElevatedButton(
-                    onPressed: resetCounter,
-                    child: const Icon(Icons.restore),
-                  ),
-                ],
+        body: Column(
+          children: [
+            /// Menampilkan list task secara scroll.
+            Expanded(
+              child: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    child: ListTile(
+                      title: Text(tasks[index]),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => deleteTask(index),
+                      ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+
+            /// Input pengguna.
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: TextField(
+                controller: taskController,
+                decoration: const InputDecoration(
+                  labelText: 'Masukkan Task',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// Tombol simpan task.
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: ElevatedButton.icon(
+                onPressed: addTask,
+                icon: const Icon(Icons.add),
+                label: const Text('Simpan Task'),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
 ```
 
 ---
 
-**Bagian State – Tempat Logika Berjalan:**
+**1. Bagian: Variabel tasks & Controller:**
 
 ```dart
-class _MyAppState extends State<MyApp> {
-  int counter = 0;
-}
+/// List untuk menyimpan semua task.
+List<String> tasks = []; // Menyimpan seluruh task dalam bentuk list String
+
+/// Controller untuk mengambil input dari TextField.
+final TextEditingController taskController = TextEditingController(); 
+// Controller untuk membaca teks yang diketik user di TextField
 ```
 
-• Variabel counter menyimpan angka yang ditampilkan di layar.
-• Nilai ini juga yang akan kita simpan lewat SharedPreferences.
+**Penjelasan:**
+
+Bagian ini berfungsi untuk menyiapkan dua komponen penting. `tasks` adalah list yang menyimpan seluruh daftar pekerjaan (task) yang dibuat pengguna. Sementara itu, `taskController` digunakan untuk menangkap teks yang dimasukkan ke dalam TextField. Controller ini membantu membaca nilai input dan menghapus isinya setelah task berhasil ditambahkan.
 
 ---
 
-**initState() – Dipanggil Saat Aplikasi Pertama Kali Dibuka:**
+**2. Fungsi loadTasks() – Mengambil Data dari Storage:**
 
 ```dart
-@override
-void initState() {
-  super.initState();
-  loadCounter();
-}
-```
-
-Penjelasan sintaks:
-• `initState()` otomatis dipanggil sekali ketika widget dibuat.
-• `super.initState()` wajib dipanggil agar proses internal Flutter berjalan normal.
-• `loadCounter()` dipanggil untuk mengambil data counter dari local storage.
-
----
-
-**Mengambil Data dari SharedPreferences:**
-
-```dart
-Future<void> loadCounter() async {
+/// Mengambil data task dari SharedPreferences.
+Future<void> loadTasks() async {
   final prefs = await SharedPreferences.getInstance();
-  counter = prefs.getInt('counter') ?? 0;
+  // Mengambil instance SharedPreferences untuk membaca data lokal
+
+  tasks = prefs.getStringList('tasks') ?? [];
+  // Ambil list dengan key 'tasks', jika tidak ada kembalikan list kosong
+
   setState(() {});
+  // Memperbarui UI setelah data berhasil dimuat
 }
 ```
 
-**Penjelasan baris per baris:**
+**Penjelasan:**
 
-1. `Future<void>`
-   Menandakan fungsi berjalan secara asynchronous (ada proses menunggu).
-2. `SharedPreferences.getInstance()`
-   Membuka koneksi ke local storage.
-   Wajib memakai await karena butuh waktu memuat data.
-3. `prefs.getInt('counter')`
-   Mengambil data bertipe integer dengan key "counter".
-4. `?? 0`
-   Jika data tidak ditemukan (null), gunakan nilai default 0.
-5. `setState(() {})`
-   Memerintahkan Flutter untuk mengupdate UI setelah data berhasil dimuat.
+Fungsi `loadTasks()` digunakan untuk mengambil daftar task yang sebelumnya disimpan di penyimpanan lokal menggunakan SharedPreferences. Ketika aplikasi dibuka, fungsi ini membaca data dengan key `'tasks'`. Jika data ditemukan, maka data dimuat ke variabel `tasks`. Jika tidak ada, aplikasi tetap berjalan dengan list kosong. Setelah data diperoleh, `setState()` dipanggil untuk memperbarui tampilan UI.
 
 ---
 
-**Menyimpan Nilai Counter:**
+**3. Fungsi addTask() – Menambah dan Menyimpan Task Baru:**
 
 ```dart
-Future<void> saveCounter() async {
+/// Menambahkan task baru ke dalam list dan menyimpannya.
+Future<void> addTask() async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setInt('counter', counter);
+  // Membuka akses ke SharedPreferences
+
+  tasks = prefs.getStringList('tasks') ?? [];
+  // Mengambil data terbaru dari storage agar list tetap sinkron
+
+  final newTask = taskController.text.trim();
+  // Mengambil input dari TextField dan menghapus spasi berlebih
+
+  if (newTask.isEmpty) return;
+  // Validasi: kalau kosong, tidak melakukan apa-apa
+
+  tasks.add(newTask);
+  // Menambahkan task baru ke list
+
+  await prefs.setStringList('tasks', tasks);
+  // Menyimpan ulang seluruh list ke SharedPreferences
+
+  taskController.clear();
+  // Mengosongkan input TextField setelah berhasil ditambahkan
+
+  setState(() {});
+  // Memperbarui tampilan UI
 }
 ```
 
-Penjelasan:
-• prefs.setInt('counter', counter) menyimpan nilai counter ke storage.
-• Key "counter" akan menjadi nama penyimpanan yang bisa kita panggil kapan saja.
+**Penjelasan:**
+
+Fungsi `addTask()` bertanggung jawab untuk menambahkan task baru yang diinput oleh pengguna. Pertama, aplikasi mengambil data terbaru dari SharedPreferences untuk memastikan tidak ada data yang tertimpa. Setelah itu input dibaca menggunakan `taskController`. Jika input kosong, fungsi dihentikan. Apabila valid, task dimasukkan ke dalam list dan disimpan kembali ke SharedPreferences. Setelah selesai, input dibersihkan dan UI diperbarui.
 
 ---
 
-**Menambah Counter:**
+**4. Fungsi deleteTask() – Menghapus Task:**
 
 ```dart
-void increment() {
-  setState(() {
-    counter++;
-  });
-  saveCounter();
-}
-```
-
-Penjelasan sintaks:
-• `counter++` meningkatkan nilai counter 1 angka.
-• `setState()` memberi tahu Flutter bahwa UI harus diperbarui.
-• `saveCounter()` menyimpan nilai baru ke storage agar tidak hilang saat aplikasi ditutup.
-
----
-
-**Reset Counter – Menghapus Data dari Local Storage:**
-
-```dart
-Future<void> resetCounter() async {
+/// Menghapus task berdasarkan index.
+Future<void> deleteTask(int index) async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('counter');
-  setState(() {
-    counter = 0;
-  });
+  // Mendapatkan akses ke SharedPreferences
+
+  tasks.removeAt(index);
+  // Menghapus task berdasarkan posisi indexnya
+
+  await prefs.setStringList('tasks', tasks);
+  // Menyimpan kembali list setelah dihapus
+
+  setState(() {});
+  // Memperbarui tampilan agar perubahan terlihat
 }
 ```
 
-Penjelasan:
-• `prefs.remove('counter')` menghapus data yang tersimpan.
-• Counter di-set ulang ke 0.
-• UI diperbarui dengan setState().
+**Penjelasan:**
+
+Fungsi `deleteTask()` digunakan untuk menghapus task berdasarkan index tertentu di dalam list. Setelah task dihapus, list yang sudah diperbarui disimpan kembali ke SharedPreferences agar data tetap konsisten. Kemudian UI diperbarui menggunakan `setState()` agar pengguna langsung melihat perubahan.
+
+---
+
+**5. Menampilkan Data Menggunakan ListView:**
+
+```dart
+/// Menampilkan data task dalam bentuk list
+Expanded(
+  child: ListView.builder(
+    itemCount: tasks.length, 
+    // Jumlah item sesuai panjang list
+
+    itemBuilder: (context, index) {
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        // Memberikan jarak antar item
+
+        child: ListTile(
+          title: Text(tasks[index]), 
+          // Menampilkan teks task
+
+          trailing: IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            // Tombol delete berwarna merah
+
+            onPressed: () => deleteTask(index),
+            // Ketika ditekan, panggil fungsi deleteTask
+          ),
+        ),
+      );
+    },
+  ),
+)
+```
+
+**Penjelasan:**
+
+Bagian ini menampilkan seluruh task menggunakan `ListView.builder`, sebuah widget yang efektif untuk menampilkan list dinamis. Setiap item ditampilkan dalam bentuk Card agar lebih rapi dan terlihat profesional. Di dalam card, terdapat ListTile yang memuat teks task serta tombol delete di bagian kanan. Saat tombol delete ditekan, task akan dihapus dari list.
+
+---
+
+**6. Input Task Menggunakan TextField:**
+
+```dart
+/// Input Task
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 12),
+  // Memberi jarak kiri dan kanan TextField
+
+  child: TextField(
+    controller: taskController,
+    // Menghubungkan TextField dengan controller input
+
+    decoration: const InputDecoration(
+      labelText: 'Masukkan Task',
+      // Label di atas input
+
+      border: OutlineInputBorder(),
+      // Menampilkan garis border kotak pada TextField
+    ),
+  ),
+)
+```
+
+**Penjelasan:**
+
+TextField ini digunakan untuk memasukkan task baru oleh pengguna. Controller `taskController` terhubung untuk membaca teks yang dimasukkan. Selain itu, TextField diberi dekorasi label "Masukkan Task" dan border agar tampilannya lebih jelas dan nyaman digunakan.
+
+---
+
+**7. Tombol Simpan Task:**
+
+```dart
+/// Tombol Simpan
+Padding(
+  padding: const EdgeInsets.only(bottom: 16),
+  // Memberi jarak bawah agar tombol tidak mepet
+
+  child: ElevatedButton.icon(
+    onPressed: addTask,
+    // Ketika tombol ditekan, panggil fungsi addTask()
+
+    icon: const Icon(Icons.add),  
+    // Icon tanda +
+
+    label: const Text('Simpan Task'),
+    // Teks tombol
+  ),
+)
+```
+
+**Penjelasan:**
+
+Tombol simpan berfungsi untuk mengeksekusi proses penambahan task ketika ditekan. Tombol ini menggunakan ElevatedButton.icon sehingga menampilkan ikon plus dan teks "Simpan Task". Ketika ditekan, fungsi `addTask()` dipanggil untuk memasukkan task baru ke daftar dan menyimpan ke storage.
 
 ---
