@@ -36,7 +36,7 @@ Dalam perkembangan teknologi saat ini, hampir semua aplikasi yang kita gunakan s
 
 ---
 
-## Mengambil Data dari Internet di Flutter
+## Mengambil Data dari Internet dalam bentuk tunggal
 
 Mengambil data dari internet diperlukan untuk sebagian besar aplikasi. Untungnya, Dart dan Flutter menyediakan alat, seperti **http paket**, untuk jenis pekerjaan ini.
 
@@ -321,3 +321,394 @@ class _MyAppState extends State<MyApp> {
 }
 
 ```
+
+## **Mengambil data dari internet dalam bentuk list:**
+
+Materi ini membahas cara mengambil data dari API dalam bentuk list menggunakan Flutter.
+
+**📡 Membuat Fungsi Request (Fetch Data):**
+
+Kita membutuhkan fungsi **Asynchronous** (`async`) karena mengambil data dari internet butuh waktu (tidak instan).
+
+```dart
+Future<List<Album>> fetchAlbums() async {
+  // 1. Kirim request GET ke URL API
+  final response = await http.get(
+    Uri.parse('https://jsonplaceholder.typicode.com/albums'),
+  );
+
+  // 2. Cek Status Code (200 artinya BERHASIL/OK)
+  if (response.statusCode == 200) {
+    // 3. Decode: Mengubah text JSON string menjadi List di Dart
+    List jsonResponse = jsonDecode(response.body);
+    
+    // 4. Mapping: Mengubah setiap item di List menjadi Objek Album
+    return jsonResponse.map((data) => Album.fromJson(data)).toList();
+  } else {
+    // Jika gagal (misal 404 atau 500)
+    throw Exception('Gagal memuat album');
+  }
+}
+```
+
+**Penjelasan:**
+
+**Request:** Aplikasi "menelpon" server (`http.get`).
+**Await:** Aplikasi menunggu jawaban (loading).
+**Response:**
+      Jika **200 (OK)**: Data diproses.
+      Jika **Error**: Munculkan pesan error.
+
+---
+
+**📦 Membuat Model Class (Data Modeling):**
+
+Data dari API biasanya berbentuk **JSON**. Kita perlu mengubah JSON ini menjadi **Objek Dart** agar mudah digunakan (misalnya untuk autocompletion dan type safety).
+
+**Contoh JSON dari Server:**
+
+```json
+{
+  "userId": 1,
+  "id": 1,
+  "title": "quidem molestiae enim"
+}
+```
+
+**Kode Model Class (Dart):**
+
+```dart
+class Album {
+  final int userId;
+  final int id;
+  final String title;
+
+  // Constructor
+  Album({
+    required this.userId, 
+    required this.id, 
+    required this.title
+  });
+
+  // Factory Method: Mengubah JSON (Map) menjadi Objek Album
+  // Menggunakan fitur modern Dart 3 (Pattern Matching)
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {
+        'userId': int userId, 
+        'id': int id, 
+        'title': String title
+      } => Album(
+          userId: userId,
+          id: id,
+          title: title,
+        ),
+      _ => throw const FormatException('Format JSON tidak sesuai'),
+    };
+  }
+}
+```
+
+**Penjelasan:**
+
+  `factory Album.fromJson`: Pabrik pembuatan objek. Menerima data mentah (Map), lalu mengonversinya menjadi `Album`.
+  `switch (json)`: Memvalidasi apakah data JSON memiliki key `userId`, `id`, dan `title` dengan tipe data yang benar. Jika ya, buat objek. Jika tidak, lempar Error.
+
+---
+
+**🔄 State Management Sederhana:**
+
+Karena data bersifat *Future* (akan datang nanti), kita perlu tempat penampungan sementara di dalam Widget.
+
+```dart
+late Future<List<Album>> futureAlbums;
+
+@override
+void initState() {
+  super.initState();
+  // Panggil API tepat saat Widget pertama kali dibuat
+  futureAlbums = fetchAlbums();
+}
+```
+
+`late`: Kita janji variabel ini akan diisi nanti (sebelum dipakai).
+`initState()`: Memastikan data hanya dipanggil sekali saat halaman dibuka, bukan berulang-ulang saat layar di-refresh.
+
+---
+
+**📱 Menampilkan Data ke UI (FutureBuilder):**
+
+`FutureBuilder` adalah Widget ajaib yang otomatis berubah tampilan berdasarkan status data: **Loading**, **Sukses**, atau **Error**.
+
+```dart
+FutureBuilder<List<Album>>(
+  future: futureAlbums, // Variabel Future yang kita buat tadi
+  builder: (context, snapshot) {
+    
+    // KONDISI 1: Data Berhasil Didapat
+    if (snapshot.hasData) {
+      List<Album> dataAlbum = snapshot.data!;
+      
+      return ListView.builder(
+        itemCount: dataAlbum.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: CircleAvatar(child: Text('${dataAlbum[index].id}')),
+            title: Text(dataAlbum[index].title),
+            subtitle: Text('User ID: ${dataAlbum[index].userId}'),
+          );
+        },
+      );
+    } 
+    
+    // KONDISI 2: Terjadi Error
+    else if (snapshot.hasError) {
+      return Center(child: Text("Error: ${snapshot.error}"));
+    }
+
+    // KONDISI 3: Masih Loading (Default)
+    return const Center(child: CircularProgressIndicator());
+  },
+)
+```
+
+**Penjelasan:**
+
+**Cek `snapshot`:** Snapshot adalah status data saat ini.
+Jika `hasData` ✅: Tampilkan `ListView`.
+Jika `hasError` ❌: Tampilkan pesan error.
+Jika belum ada keduanya ⏳: Tampilkan `CircularProgressIndicator` (loading spinner).
+
+---
+
+**✅ Full Code (Siap Copy-Paste):**
+
+Berikut adalah kode lengkap `main.dart` yang bisa langsung Anda coba:
+
+```jsx
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+// 1. Model Class
+class Album {
+  final int userId;
+  final int id;
+  final String title;
+
+  Album({required this.userId, required this.id, required this.title});
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {'userId': int userId, 'id': int id, 'title': String title} => Album(
+          userId: userId,
+          id: id,
+          title: title,
+        ),
+      _ => throw const FormatException('Failed to load album'),
+    };
+  }
+}
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Belajar API Flutter',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const AlbumListScreen(),
+    );
+  }
+}
+
+class AlbumListScreen extends StatefulWidget {
+  const AlbumListScreen({super.key});
+
+  @override
+  State<AlbumListScreen> createState() => _AlbumListScreenState();
+}
+
+class _AlbumListScreenState extends State<AlbumListScreen> {
+  // 2. State Variable
+  late Future<List<Album>> futureAlbums;
+
+  // 3. Fungsi Fetch API
+  Future<List<Album>> fetchAlbums() async {
+    final response = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/albums'),
+    );
+
+    if (response.statusCode == 200) {
+      List jsonResponse = jsonDecode(response.body);
+      return jsonResponse.map((data) => Album.fromJson(data)).toList();
+    } else {
+      throw Exception('Failed to load album');
+    }
+  }
+
+  // 4. Init State
+  @override
+  void initState() {
+    super.initState();
+    futureAlbums = fetchAlbums();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Daftar Album API')),
+      // 5. FutureBuilder UI
+      body: FutureBuilder<List<Album>>(
+        future: futureAlbums,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                var album = snapshot.data![index];
+                return ListTile(
+                  leading: CircleAvatar(child: Text('${album.id}')),
+                  title: Text(album.title),
+                );
+              },
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text('${snapshot.error}'));
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
+  }
+}
+```
+
+---
+
+**Panduan Lengkap Menampilkan Data di Flutter dengan `FutureBuilder`:**
+
+1️⃣ Konsep Dasar: Apa itu `FutureBuilder`?
+
+`FutureBuilder` adalah **Widget khusus di Flutter** yang bertugas **membangun (menampilkan) UI secara otomatis** berdasarkan status dari operasi **asinkron** (`Future`). Ini menghilangkan kebutuhan untuk mengelola status *loading*, *data*, dan *error* secara manual dengan `setState()`.
+
+  **`Future`**: Objek yang menjanjikan nilai (data) atau *error* di masa depan.
+  **Status yang Dimonitor:**
+    1.  ⏳ **Waiting/Loading:** `Future` sedang berjalan.
+    2.  ✅ **Done with Data:** `Future` berhasil mengembalikan data.
+    3.  ❌ **Done with Error:** `Future` gagal mengembalikan *error*.
+
+---
+
+2️⃣ Struktur Sintaks Dasar
+
+Kode ini menunjukkan bagaimana `FutureBuilder` menggunakan parameter `future` sebagai sumber data dan `builder` untuk merespons statusnya.
+
+```dart
+FutureBuilder<List<Album>>(
+  future: futureAlbums, // Sumber data asinkron
+  builder: (context, snapshot) { // Fungsi pembuat UI berdasarkan status
+    
+    // Di sini kita cek status 'snapshot' dan kembalikan Widget yang sesuai.
+    
+    // KONDISI 1, 2, 3...
+    
+  },
+)
+```
+
+2.1 Deklarasi Tipe dan Parameter Wajib
+
+  **`FutureBuilder<List<Album>>`**: Menentukan **tipe data** yang diharapkan dari `Future`. Di sini, diharapkan mengembalikan `List<Album>`. Ini menjamin **type safety**.
+  **`future: futureAlbums`**: Parameter **wajib**. Ini adalah variabel `Future` yang akan terus dipantau oleh `FutureBuilder` sampai selesai.
+  **`builder: (context, snapshot) { ... }`**: Parameter **wajib**. Fungsi yang dipanggil **setiap kali status `future` berubah**.
+      **`snapshot`**: Objek utama (`AsyncSnapshot`) yang berisi **status koneksi** dan **nilai data/error saat ini**.
+
+---
+
+3️⃣ Alur Pengecekan Status (`snapshot`)
+
+Di dalam fungsi `builder`, pengecekan dilakukan secara berurutan, biasanya dimulai dari kondisi *loading* atau *error* sebelum menampilkan data final.
+
+3.1 ⏳ KONDISI 1: Masih Loading (Menunggu)
+
+Ini adalah kondisi yang paling dasar dan sering diletakkan terakhir sebagai *default* atau diawali dengan pengecekan `snapshot.connectionState`.
+
+```dart
+// Pengecekan status koneksi
+if (snapshot.connectionState == ConnectionState.waiting) {
+    return const Center(child: CircularProgressIndicator());
+}
+// ATAU, jika tidak ada kondisi lain yang terpenuhi:
+// return const Center(child: CircularProgressIndicator());
+```
+
+  **Tujuan:** Menampilkan indikator bahwa aplikasi sedang memproses data.
+  **Widget:** `CircularProgressIndicator` (loading spinner).
+
+3.2 ❌ KONDISI 2: Terjadi Error
+
+Setelah selesai, `Future` mungkin mengembalikan *error*.
+
+```dart
+else if (snapshot.hasError) {
+  return Center(child: Text("Error: ${snapshot.error}"));
+}
+```
+
+  **`snapshot.hasError`**: Bernilai `true` jika `Future` selesai dengan **kegagalan** (misalnya, masalah jaringan atau respons API yang tidak valid).
+  **`snapshot.error`**: Menyimpan detail pesan *error* yang dapat ditampilkan kepada pengguna.
+
+3.3 ✅ KONDISI 3: Data Berhasil Didapat (Sukses)
+
+Ini adalah kondisi ketika `Future` telah selesai dengan sukses dan mengembalikan data yang valid.
+
+A. Mengambil Data
+
+```dart
+if (snapshot.hasData) {
+  List<Album> dataAlbum = snapshot.data!; 
+  // ... Lanjut ke langkah B
+}
+```
+
+  **`snapshot.hasData`**: Bernilai `true` jika data telah berhasil diterima.
+  **`snapshot.data!`**: Properti ini mengambil data aktual (`List<Album>`). Tanda **`!` (Null Assertion Operator)** digunakan karena kita sudah yakin datanya tidak `null` (berkat `snapshot.hasData`).
+  **`dataAlbum`**: Variabel yang menyimpan daftar objek `Album` siap untuk ditampilkan.
+
+B. Membangun Daftar UI
+
+Data ditampilkan secara efisien menggunakan `ListView.builder`.
+
+```dart
+  return ListView.builder(
+    itemCount: dataAlbum.length,
+    itemBuilder: (context, index) {
+      // ... Lanjut ke langkah C
+    },
+  );
+```
+
+  **`ListView.builder`**: Widget yang sangat **efisien** untuk daftar panjang; ia hanya membuat *widget* untuk item yang terlihat di layar (*lazy loading*).
+  **`itemCount`**: Menentukan jumlah baris yang akan dibuat (sesuai panjang `dataAlbum`).
+  **`itemBuilder`**: Fungsi yang dipanggil untuk **setiap baris**, dengan `index` menunjukkan item mana yang harus ditampilkan.
+
+ C. Mendesain Setiap Item (`ListTile`)
+
+Setiap item dibuat menggunakan `ListTile` dan data yang sesuai dengan `index`.
+
+```dart
+      return ListTile(
+        leading: CircleAvatar(child: Text('${dataAlbum[index].id}')),
+        title: Text(dataAlbum[index].title),
+        subtitle: Text('User ID: ${dataAlbum[index].userId}'),
+      );
+```
+
+  **`ListTile`**: Widget standar untuk satu baris daftar.
+      **`leading`**: Widget di sebelah kiri (digunakan untuk menampilkan ID).
+      **`title`**: Judul utama (digunakan untuk menampilkan `album.title`).
+      **`subtitle`**: Teks pendukung (digunakan untuk menampilkan `album.userId`).
