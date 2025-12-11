@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# 🚀 Introduction
+# Introduction
 
 Selamat datang di panduan belajar pemrograman **Dart**!  
 Panduan ini dibuat untuk membantu pemula memahami dasar-dasar Dart melalui contoh sederhana, penjelasan yang jelas, dan struktur yang rapi.

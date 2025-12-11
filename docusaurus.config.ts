@@ -1,5 +1,5 @@
-import {themes as prismThemes} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
+import { themes as prismThemes } from 'prism-react-renderer';
+import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
@@ -24,7 +24,7 @@ const config: Config = {
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'programmernusantara', // Usually your GitHub org/user name.
   projectName: 'sintech', // Usually your repo name.
-  deploymentBranch: 'gh-pages',	
+  deploymentBranch: 'gh-pages',
   onBrokenLinks: 'throw',
 
   // Even if you don't use internationalization, you can use this field to set
@@ -87,7 +87,7 @@ const config: Config = {
           position: 'left',
           label: 'Tutorial',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
+        { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/programmernusantara',
           label: 'GitHub',
@@ -125,7 +125,7 @@ const config: Config = {
             },
           ],
         },
-             {
+        {
           title: 'Suport',
           items: [
             {
@@ -134,6 +134,19 @@ const config: Config = {
             },
           ],
         },
+
+
+        {
+          title: 'Media',
+          items: [
+
+            {
+              label: 'Youtube',
+              href: 'https://www.youtube.com/@wildanfq',
+            },
+
+          ]
+        }
       ],
     },
     prism: {
