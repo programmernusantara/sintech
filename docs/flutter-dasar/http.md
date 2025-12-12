@@ -2,7 +2,7 @@
 sidebar_position: 7
 ---
 
-# 🌐 Http
+# 🌐 Working Http
 
 Dalam perkembangan teknologi saat ini, hampir semua aplikasi yang kita gunakan setiap hari—seperti Instagram, Shopee, WhatsApp, atau aplikasi keuangan—memerlukan koneksi internet untuk bekerja. Ketika sebuah aplikasi ingin mengambil data dari server, mengirim data ke server, atau berinteraksi dengan layanan lain di internet, aplikasi tersebut membutuhkan sebuah “jembatan penghubung”. Jembatan itulah yang disebut **API**. Tanpa API, aplikasi modern tidak bisa menampilkan data, tidak bisa login, tidak bisa mengirim formulir, dan pada dasarnya tidak dapat melakukan komunikasi apa pun dengan dunia luar.
 
@@ -36,7 +36,7 @@ Dalam perkembangan teknologi saat ini, hampir semua aplikasi yang kita gunakan s
 
 ---
 
-## Mengambil Data dari Internet dalam bentuk tunggal
+## Get Api
 
 Mengambil data dari internet diperlukan untuk sebagian besar aplikasi. Untungnya, Dart dan Flutter menyediakan alat, seperti **http paket**, untuk jenis pekerjaan ini.
 
@@ -321,3 +321,295 @@ class _MyAppState extends State<MyApp> {
 }
 
 ```
+
+## Post Api
+
+```jsx
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  runApp(const MyApp()); // Menjalankan aplikasi utama
+}
+
+// Model data Todo untuk merepresentasikan struktur data dari API
+class Todo {
+  final int? userId; // ID user (opsional karena tidak selalu dikirim)
+  final int id; // ID unik todo
+  final String title; // Judul todo
+  final bool completed; // Status apakah todo selesai
+
+  Todo({
+    this.userId,
+    required this.id,
+    required this.title,
+    required this.completed,
+  });
+
+  // Mengubah JSON menjadi objek Todo
+  factory Todo.fromJson(Map<String, dynamic> json) {
+    return Todo(
+      userId: json['userId'],
+      id: json['id'],
+      title: json['title'],
+      completed: json['completed'],
+    );
+  }
+}
+
+/// Fungsi POST API untuk membuat Todo baru
+Future<Todo> createTodo(String title) async {
+  final response = await http.post(
+    Uri.parse('https://jsonplaceholder.typicode.com/todos'),
+    headers: {'Content-Type': 'application/json; charset=UTF-8'},
+    body: jsonEncode({
+      'title': title,
+      'completed': false, // default status todo baru
+    }),
+  );
+
+  // Status 201 = berhasil membuat data baru
+  if (response.statusCode == 201) {
+    return Todo.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Gagal membuat todo');
+  }
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final TextEditingController controller = TextEditingController(); // Input field controller
+  Future<Todo>? futureTodo; // Menyimpan hasil POST untuk ditampilkan
+
+  // Fungsi submit ketika tombol kirim ditekan
+  void _submit() {
+    final title = controller.text.trim(); // Ambil input dan hapus spasi berlebih
+    if (title.isEmpty) return; // Validasi input kosong
+
+    setState(() {
+      futureTodo = createTodo(title); // Panggil API
+    });
+
+    controller.clear(); // Bersihkan input setelah submit
+  }
+
+  @override
+  void dispose() {
+    controller.dispose(); // Membersihkan controller dari memory
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Post Api'),
+          centerTitle: true,
+        ),
+
+        body: Column(
+          children: [
+            // Bagian tampilan hasil POST (Todo yang dibuat)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FutureBuilder<Todo>(
+                  future: futureTodo,
+                  builder: (context, snapshot) {
+                    // Belum ada todo yang dibuat
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: Text(
+                          'Belum ada todo dibuat',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      );
+                    }
+
+                    final todo = snapshot.data!; // Todo hasil POST
+
+                    return Card(
+                      margin: const EdgeInsets.all(8),
+                      child: ListTile(
+                        title: Text('ID: ${todo.id}'), // Menampilkan ID dari API
+                        subtitle: Text(todo.title), // Menampilkan judul
+                        trailing: Text('Completed: ${todo.completed}'), // Status selesai
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            // Bagian input seperti WhatsApp di bawah
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: Colors.grey.shade200,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        labelText: 'Tulis Todo...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15), // Sudut membulat
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  // Tombol kirim
+                  CircleAvatar(
+                    backgroundColor: Colors.blue,
+                    child: IconButton(
+                      onPressed: _submit,
+                      icon: const Icon(Icons.send, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+**Penjelasan Lengkap:**
+
+1. Struktur Model `Todo`
+
+Model `Todo` digunakan untuk menyamakan struktur data antara aplikasi Flutter dan data dari API.
+
+🔍 Tujuan Model:
+
+Menyimpan data todo dalam bentuk objek Dart.
+Memudahkan proses konversi JSON ke objek (dan sebaliknya).
+
+📌 Bagian Penting:
+
+`userId` → ID pemilik todo (opsional).
+`id` → ID unik todo dari API.
+`title` → Judul atau nama todo.
+`completed` → Status apakah todo sudah selesai.
+`factory Todo.fromJson()` → Mengonversi data JSON API menjadi objek Dart.
+
+Model ini membuat data yang diterima dari API lebih mudah digunakan di UI Flutter.
+
+---
+
+2. Fungsi Post Api — `createTodo()`
+
+Ini adalah bagian inti yang berfungsi untuk **mengirim data Todo baru** ke server menggunakan metode `POST`.
+
+📝 Proses yang Terjadi
+
+1. Fungsi menerima parameter `title` dari input pengguna.
+2. Mengirim request POST ke: `https://jsonplaceholder.typicode.com/todos`.
+3. Mengirim JSON berisi:
+
+   ```json
+   { "title": "nama todo", "completed": false }
+   ```
+
+4. Menunggu respon dari server.
+5. Jika status kode **201**, berarti berhasil membuat data baru.
+6. Hasil JSON dikonversi menjadi objek `Todo` menggunakan `Todo.fromJson()`.
+
+⚠️ Error Handling
+
+Jika server tidak mengembalikan status 201, fungsi langsung memberikan error:
+
+> “Gagal membuat todo”
+
+Ini penting untuk debugging jika API gagal.
+
+---
+
+3. Variabel `futureTodo`
+
+Variabel ini memiliki tipe `Future<Todo>?` yang digunakan untuk menyimpan hasil request POST.
+
+🎯 Fungsinya
+
+Menjadi sumber data untuk `FutureBuilder`.
+Setiap kali pengguna memasukkan todo baru, variabel ini akan menyimpan future dari hasil POST.
+UI otomatis diperbarui ketika future selesai.
+
+---
+
+4. Fungsi `_submit()`
+
+Fungsi ini dipanggil ketika user menekan ikon **Send**.
+
+🔍 Alur Kerja `_submit()`
+
+1. Mengambil teks dari `TextField`.
+2. `trim()` menghapus spasi berlebih.
+3. Jika kosong → batal.
+4. Memanggil `createTodo(title)`.
+5. Menyimpan future ke variabel `futureTodo`.
+6. Melakukan `setState()` agar UI diperbarui.
+7. Membersihkan TextField.
+
+🎯 Tujuan Utama
+
+Menghubungkan input pengguna dengan proses POST API.
+
+---
+
+5. — Menampilkan Hasil POST - `FutureBuilder` 
+
+`FutureBuilder` adalah widget Flutter yang memantau proses asynchronous (Future).
+
+🔍 Fungsi di Kode Ini
+
+Menunggu hasil POST API.
+Menampilkan pesan default jika belum ada data.
+Menampilkan kartu (Card + ListTile) ketika data sudah diterima.
+
+📌 Yang Ditampilkan
+
+ID todo.
+Judul todo.
+Status `completed`.
+
+`FutureBuilder` sangat membantu pemula untuk menampilkan data API tanpa harus membuat state management kompleks.
+
+---
+
+6. Bagian Input
+
+Bagian ini adalah area untuk mengetik todo baru.
+
+🧩 Komponen Utama
+
+**TextField** → tempat pengguna mengetik judul todo.
+**CircleAvatar + IconButton** → tombol kirim.
+Dekorasi UI dibuat rapi dan modern (styling WhatsApp-like).
+
+🔍 Alur Pembuatan Todo
+
+1. User mengetik sesuatu.
+2. Tekan tombol send.
+3. `_submit()` dijalankan.
+4. API dipanggil.
+5. Hasil ditampilkan oleh `FutureBuilder`.
+
+Bagian ini membantu pengguna memahami interaksi langsung antara input UI dan API.
+
+---
