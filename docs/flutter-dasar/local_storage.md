@@ -14,7 +14,7 @@ Di sinilah peran Local Storage menjadi sangat penting. Local Storage memungkinka
 
 ---
 
-## 1. Contoh Kasus: Menyimpan Status Dark Mode
+## Menyimpan Status Dark Mode
 
 Status Awal Tanpa Penyimpanan Permanen
 Kode awal ini hanya menyimpan status tema di dalam memori (**RAM**). Tema akan kembali ke **Light Mode** setiap kali aplikasi dibuka ulang.
@@ -73,7 +73,7 @@ class _HomeState extends State<Home> {
 
 ```
 
-## 2. Menggunakan `shared_preferences` untuk Local Storage
+## 1. Menggunakan `shared_preferences` untuk Local Storage
 
 Untuk menyimpan data secara permanen, kita akan menggunakan *package* `shared_preferences`.
 
@@ -89,7 +89,7 @@ Kemudian, *import* di file Dart Anda:
 import 'package:shared_preferences/shared_preferences.dart';
 ```
 
-## 3. Logika Pengambilan Status Tema (Memuat Data)
+## 2. Logika Pengambilan Status Tema (Memuat Data)
 
 Fungsi ini dijalankan untuk memuat status tema yang sudah tersimpan saat aplikasi pertama kali dibuka.
 
@@ -111,7 +111,7 @@ Future<void> _loadTheme() async {
 
 ```
 
-## 4. Logika Perubahan dan Penyimpanan Tema
+## 3. Logika Perubahan dan Penyimpanan Tema
 
 Fungsi ini menangani pergantian tema dan menyimpan status tema yang baru ke penyimpanan lokal.
 
@@ -136,7 +136,7 @@ Future<void> _toggleTheme() async {
 
 ```
 
-## 5. Inisialisasi Aplikasi (`initState`)
+## 4. Inisialisasi Aplikasi (`initState`)
 
 Panggil fungsi `_loadTheme` di `initState` agar tema yang tersimpan langsung dimuat segera setelah *widget* dibuat.
 
@@ -229,6 +229,452 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+}
+
+```
+
+## Aplikasi pencatatan tugas
+
+Pada materi sebelumnya, kita telah membuat fitur Dark Mode pada aplikasi. Fitur ini memungkinkan pengguna mengubah tampilan aplikasi menjadi Light Mode atau Dark Mode. Untuk menyimpan pilihan tampilan tersebut, kita menggunakan SharedPreferences sebagai local storage. SharedPreferences cocok digunakan untuk menyimpan data kecil dan sederhana, seperti pengaturan atau preferensi pengguna.
+
+Pada materi kali ini, kita akan menambahkan fitur baru, yaitu pencatatan notes. Fitur ini memungkinkan pengguna untuk membuat dan mengelola catatan secara langsung di dalam aplikasi. Agar catatan tersebut bisa disimpan secara permanen, kita memerlukan local storage yang lebih kuat dan efisien dibandingkan SharedPreferences.
+Untuk itu, kita akan menggunakan Hive sebagai local storage utama. Hive adalah database lokal yang ringan, cepat, dan sangat cocok digunakan pada aplikasi Flutter. Hive mampu menyimpan data dalam jumlah lebih banyak dan dalam bentuk yang lebih terstruktur, sehingga ideal untuk menyimpan data notes.
+
+ada akhirnya, aplikasi yang kita bangun akan memiliki dua fitur utama. Pertama, fitur Dark Mode yang menggunakan SharedPreferences untuk menyimpan status tampilan aplikasi. Kedua, fitur CRUD Notes yang menggunakan Hive sebagai media penyimpanan data catatan. Kedua fitur ini saling melengkapi dan menjadi dasar penting dalam pengembangan aplikasi Flutter yang lebih kompleks.
+Berikut adalah versi perbaikan dari materi pembelajaran Anda. Saya telah merapikan struktur, memperbaiki alur penjelasan, dan menambahkan komentar pada kode program agar lebih mudah dipahami tanpa mengubah esensi materi asli Anda.
+
+## 1. Persiapan: Impor Package
+
+Langkah pertama adalah menambahkan pustaka (*library*) yang diperlukan untuk membangun antarmuka (UI) dan mengelola penyimpanan data.
+
+```dart
+import 'package:flutter/material.dart'; // Library utama UI Flutter
+import 'package:hive_flutter/hive_flutter.dart'; // Library database lokal Hive
+
+```
+
+**Penjelasan Utama:**
+
+* `material.dart`: Menyediakan komponen visual seperti tombol, teks, dan tata letak.
+* `hive_flutter.dart`: Memungkinkan aplikasi menyimpan data secara permanen di memori ponsel sehingga data tetap ada meskipun aplikasi ditutup.
+
+---
+
+## 2. Inisialisasi Database (Entry Point)
+
+Sebelum aplikasi dijalankan, kita harus menyiapkan sistem Hive agar siap digunakan. Proses ini dilakukan di dalam fungsi `main()`.
+
+```dart
+void main() async {
+  // 1. Memastikan binding Flutter sudah siap
+  WidgetsFlutterBinding.ensureInitialized(); 
+  
+  // 2. Inisialisasi Hive khusus untuk Flutter
+  await Hive.initFlutter(); 
+  
+  // 3. Membuka "Box" (Wadah penyimpanan)
+  // Box di Hive setara dengan tabel pada SQL atau koleksi pada NoSQL
+  await Hive.openBox('storageNotes');
+  
+  runApp(const MyApp());
+}
+
+```
+
+**Konsep Penting:**
+
+* `async` & `await`: Digunakan karena proses membuka database membutuhkan waktu (asynchronous). Kita harus menunggu Hive siap sebelum aplikasi muncul.
+* `openBox`: Membuat ruang penyimpanan bernama `'storageNotes'`. Anda bisa memberi nama apa saja sesuai kebutuhan.
+
+---
+
+## 3. Struktur Halaman Utama (`NotesPage`)
+
+Di dalam `StatefulWidget`, kita perlu mendefinisikan variabel untuk mengakses database dan mengontrol teks input.
+
+```dart
+class _NotesPageState extends State<NotesPage> {
+  // Referensi ke Box yang sudah dibuka di main.dart
+  final Box _notesBox = Hive.box('storageNotes');
+  
+  // Controller untuk menangkap input teks dari user
+  final TextEditingController _addController = TextEditingController(); // Untuk input baru
+  final TextEditingController _editController = TextEditingController(); // Untuk dialog edit
+
+```
+
+---
+
+## 4. Implementasi Logika CRUD
+
+CRUD adalah singkatan dari *Create, Read, Update,* dan *Delete*. Berikut adalah fungsi-fungsinya:
+
+A. Tambah Data (Create)
+
+Menyimpan catatan baru ke dalam Hive. Data disimpan dalam format **Map** (`key: value`).
+
+```dart
+void _addNote() {
+  if (_addController.text.trim().isEmpty) return; // Validasi: Jangan simpan jika kosong
+  
+  _notesBox.add({
+    'text': _addController.text, 
+    'isDone': false
+  }); 
+  
+  _addController.clear(); // Bersihkan input setelah klik tambah
+}
+
+```
+
+B. Update Status Checklist (Update)
+
+Mengubah status catatan (selesai atau belum).
+
+```dart
+void _toggleDone(int index) {
+  final note = _notesBox.getAt(index); // Ambil data lama berdasarkan urutan (index)
+  
+  // Simpan kembali ke index yang sama dengan nilai 'isDone' yang dibalik
+  _notesBox.putAt(index, {
+    'text': note['text'], 
+    'isDone': !note['isDone']
+  });
+}
+
+```
+
+C. Edit Teks Catatan (Update)
+
+Menampilkan dialog untuk mengubah isi teks catatan.
+
+```dart
+void _editNote(int index) {
+  final note = _notesBox.getAt(index);
+  _editController.text = note['text']; // Isi field dengan teks lama
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Edit Catatan'),
+      content: TextField(controller: _editController, autofocus: true),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+        ElevatedButton(
+          onPressed: () {
+            if (_editController.text.trim().isEmpty) return;
+            _notesBox.putAt(index, {
+              'text': _editController.text,
+              'isDone': note['isDone'],
+            });
+            _editController.clear();
+            Navigator.pop(context);
+          },
+          child: const Text('Simpan'),
+        ),
+      ],
+    ),
+  );
+}
+
+```
+
+D. Hapus Data (Delete)
+
+```dart
+void _deleteNote(int index) {
+  _notesBox.deleteAt(index); // Menghapus permanen data di index tersebut
+}
+
+```
+
+Manajemen Memori (Dispose)
+
+Sangat penting untuk menghapus controller saat halaman tidak lagi digunakan agar tidak terjadi kebocoran memori (*memory leak*).
+
+```dart
+@override
+void dispose() {
+  _addController.dispose();
+  _editController.dispose();
+  super.dispose();
+}
+
+```
+
+---
+
+## 5. User Interface
+
+Bagian ini adalah yang paling penting karena harus memperbarui layar secara otomatis saat data di database berubah. Kita menggunakan `ValueListenableBuilder`.
+
+```dart
+// Widget ini mendengarkan perubahan pada _notesBox secara Real-Time
+ValueListenableBuilder(
+  valueListenable: _notesBox.listenable(), // Pantau perubahan data
+  builder: (context, Box box, _) {
+    if (box.isEmpty) {
+      return const Center(child: Text('Belum ada catatan'));
+    }
+
+    // Menggunakan ListView untuk menampilkan data dalam bentuk daftar
+    return ListView.builder(
+      itemCount: box.length, // Berapa banyak data yang ada
+      itemBuilder: (context, index) {
+        final note = box.getAt(index); // Ambil data per baris
+        return ListTile(
+          title: Text(note['text']), // Tampilkan teks catatan
+          // ... (kode lainnya)
+        );
+      },
+    );
+  },
+)
+
+```
+
+**Penjelasan Singkat:**
+
+* **`ValueListenableBuilder`**: Ibarat "satpam" yang terus melihat ke database. Begitu ada data masuk, hapus, atau edit, dia langsung menyuruh UI untuk "gambar ulang" (refresh).
+* **`ListView.builder`**: Digunakan agar aplikasi lancar saat menampilkan banyak data sekaligus.
+
+---
+
+UI Menambahkan Data (Create)
+
+Tombol dan kolom input untuk menambah catatan biasanya diletakkan di bagian bawah layar.
+
+```dart
+// Kolom Input di bagian bawah
+TextField(
+  controller: _addController, // Menangkap apa yang diketik user
+  decoration: const InputDecoration(hintText: 'Tulis catatan...'),
+),
+
+// Tombol Kirim/Tambah
+IconButton(
+  icon: const Icon(Icons.add),
+  onPressed: _addNote, // Memanggil fungsi logika _addNote() yang sudah dibuat
+),
+
+```
+
+**Penjelasan Singkat:**
+
+* **`TextField`**: Tempat user mengetik.
+* **`_addNote`**: Saat tombol ditekan, UI memicu logika untuk menyimpan teks dari `_addController` ke dalam Hive.
+
+---
+
+UI Mengubah Status & Edit (Update)
+
+Ada dua jenis update di sini: mengubah status (checklist) dan mengubah teks (edit).
+
+**A. Checklist (Update isDone):**
+
+```dart
+leading: Checkbox(
+  value: note['isDone'], // Menampilkan tanda centang jika true
+  onChanged: (_) => _toggleDone(index), // Memicu logika _toggleDone
+),
+
+```
+
+Tombol Edit (Update Text):**
+
+```dart
+IconButton(
+  icon: const Icon(Icons.edit),
+  onPressed: () => _editNote(index), // Memunculkan Pop-up Dialog Edit
+),
+
+```
+
+**Penjelasan Singkat:**
+
+* UI memberikan akses kepada user melalui icon. Saat icon **Edit** diklik, fungsi `_editNote` akan menjalankan perintah `showDialog` untuk menampilkan jendela kecil tempat user memperbaiki teks.
+
+---
+
+UI Menghapus Data (Delete)
+
+Biasanya menggunakan ikon tong sampah di sebelah kanan setiap baris catatan.
+
+```dart
+IconButton(
+  icon: const Icon(Icons.delete, color: Colors.red),
+  onPressed: () => _deleteNote(index), // Memicu logika _deleteNote
+),
+
+```
+
+**Penjelasan Singkat:**
+
+* **`index`**: UI mengirimkan nomor urut catatan tersebut ke fungsi `_deleteNote`. Dengan begitu, Hive tahu persis catatan mana yang harus dibuang dari memori.
+
+---
+
+## Kode Lengkap (Full Code)
+
+Berikut adalah gabungan seluruh logika di atas menjadi satu file aplikasi yang siap dijalankan.
+
+```jsx
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox('storageNotes');
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const NotesPage(),
+    );
+  }
+}
+
+class NotesPage extends StatefulWidget {
+  const NotesPage({super.key});
+
+  @override
+  State<NotesPage> createState() => _NotesPageState();
+}
+
+class _NotesPageState extends State<NotesPage> {
+  final Box _notesBox = Hive.box('storageNotes');
+  final TextEditingController _addController = TextEditingController();
+  final TextEditingController _editController = TextEditingController();
+
+  void _addNote() {
+    if (_addController.text.trim().isEmpty) return;
+    _notesBox.add({'text': _addController.text, 'isDone': false});
+    _addController.clear();
+  }
+
+  void _toggleDone(int index) {
+    final note = _notesBox.getAt(index);
+    _notesBox.putAt(index, {'text': note['text'], 'isDone': !note['isDone']});
+  }
+
+  void _editNote(int index) {
+    final note = _notesBox.getAt(index);
+    _editController.text = note['text'];
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Note'),
+        content: TextField(controller: _editController, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
+          ElevatedButton(
+            onPressed: () {
+              if (_editController.text.trim().isEmpty) return;
+              _notesBox.putAt(index, {'text': _editController.text, 'isDone': note['isDone']});
+              _editController.clear();
+              Navigator.pop(context);
+            },
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteNote(int index) => _notesBox.deleteAt(index);
+
+  @override
+  void dispose() {
+    _addController.dispose();
+    _editController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('My Notes'), centerTitle: true),
+      body: Column(
+        children: [
+          // Bagian List: Menampilkan data secara real-time
+          Expanded(
+            child: ValueListenableBuilder(
+              valueListenable: _notesBox.listenable(),
+              builder: (context, Box box, _) {
+                if (box.isEmpty) return const Center(child: Text('Belum ada catatan.'));
+
+                return ListView.builder(
+                  itemCount: box.length,
+                  itemBuilder: (context, index) {
+                    final note = box.getAt(index);
+                    return ListTile(
+                      leading: Checkbox(
+                        value: note['isDone'],
+                        onChanged: (_) => _toggleDone(index),
+                      ),
+                      title: Text(
+                        note['text'],
+                        style: TextStyle(
+                          decoration: note['isDone'] ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.orange),
+                            onPressed: () => _editNote(index),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteNote(index),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          
+          // Bagian Input: Pengetikan di bawah
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _addController,
+                    decoration: const InputDecoration(
+                      hintText: 'Tambah catatan baru...',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                CircleAvatar(
+                  backgroundColor: Colors.blue,
+                  child: IconButton(
+                    icon: const Icon(Icons.send, color: Colors.white),
+                    onPressed: _addNote,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 ```
