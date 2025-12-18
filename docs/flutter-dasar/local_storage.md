@@ -521,78 +521,163 @@ Berikut adalah gabungan seluruh logika di atas menjadi satu file aplikasi yang s
 ```jsx
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
+  // Memastikan binding framework Flutter sudah siap sebelum menjalankan kode async
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi Hive (Database lokal yang cepat) untuk Flutter
   await Hive.initFlutter();
+
+  // Membuka "box" (seperti tabel/koleksi) bernama 'storageNotes' untuk menyimpan data
   await Hive.openBox('storageNotes');
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // Variabel untuk menyimpan status tema (Terang atau Gelap)
+  ThemeMode _themeMode = ThemeMode.light;
+
+  @override
+  void initState() {
+    super.initState();
+    // Memuat preferensi tema yang disimpan saat aplikasi pertama kali dibuka
+    _loadTheme();
+  }
+
+  // Mengambil status tema dari memori handphone (SharedPreferences)
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Jika data 'isDark' tidak ada, maka default-nya false (light)
+    final isDark = prefs.getBool('isDark') ?? false;
+    setState(() {
+      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    });
+  }
+
+  // Fungsi untuk mengganti tema dan menyimpannya secara permanen
+  void toggleTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      if (_themeMode == ThemeMode.light) {
+        _themeMode = ThemeMode.dark;
+        prefs.setBool('isDark', true);
+      } else {
+        _themeMode = ThemeMode.light;
+        prefs.setBool('isDark', false);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const NotesPage(),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: _themeMode, // Mengontrol tema aplikasi berdasarkan state
+      home: NotesPage(onThemeToggle: toggleTheme),
     );
   }
 }
 
 class NotesPage extends StatefulWidget {
-  const NotesPage({super.key});
+  final VoidCallback onThemeToggle;
+  const NotesPage({super.key, required this.onThemeToggle});
 
   @override
   State<NotesPage> createState() => _NotesPageState();
 }
 
 class _NotesPageState extends State<NotesPage> {
+  // Mengambil referensi box Hive yang sudah dibuka di main()
   final Box _notesBox = Hive.box('storageNotes');
+
+  // Controller untuk menangkap input teks dari user
   final TextEditingController _addController = TextEditingController();
   final TextEditingController _editController = TextEditingController();
 
+  // Fungsi menambah catatan baru ke database Hive
   void _addNote() {
-    if (_addController.text.trim().isEmpty) return;
-    _notesBox.add({'text': _addController.text, 'isDone': false});
-    _addController.clear();
+    if (_addController.text.trim().isEmpty) return; // Jangan simpan jika kosong
+    // Menyimpan data berupa Map (key-value pair)
+    _notesBox.add({
+      'text': _addController.text,
+      'isDone': false, // Default catatan baru belum selesai
+    });
+    _addController.clear(); // Bersihkan kolom input setelah menambah
   }
 
+  // Fungsi mengganti status ceklis (Selesai / Belum Selesai)
   void _toggleDone(int index) {
     final note = _notesBox.getAt(index);
-    _notesBox.putAt(index, {'text': note['text'], 'isDone': !note['isDone']});
+    // putAt digunakan untuk mengganti data pada posisi (index) tertentu
+    _notesBox.putAt(index, {
+      'text': note['text'],
+      'isDone':
+          !note['isDone'], // Membalikkan nilai true jadi false, atau sebaliknya
+    });
   }
 
+  // Fungsi untuk menampilkan dialog edit
   void _editNote(int index) {
     final note = _notesBox.getAt(index);
     _editController.text = note['text'];
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Note'),
-        content: TextField(controller: _editController, autofocus: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal')),
-          ElevatedButton(
-            onPressed: () {
-              if (_editController.text.trim().isEmpty) return;
-              _notesBox.putAt(index, {'text': _editController.text, 'isDone': note['isDone']});
-              _editController.clear();
-              Navigator.pop(context);
-            },
-            child: const Text('Simpan'),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Note'),
+          content: TextField(
+            controller: _editController,
+            autofocus: true,
+            decoration: const InputDecoration(hintText: "Ubah catatanmu..."),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _editController.clear();
+                Navigator.pop(context); // Tutup dialog
+              },
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_editController.text.trim().isEmpty) return;
+                // Update data di database pada index yang diklik
+                _notesBox.putAt(index, {
+                  'text': _editController.text,
+                  'isDone': note['isDone'],
+                });
+                _editController.clear();
+                Navigator.pop(context);
+              },
+              child: const Text('Simpan'),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  void _deleteNote(int index) => _notesBox.deleteAt(index);
+  // Menghapus data dari database berdasarkan index
+  void _deleteNote(int index) {
+    _notesBox.deleteAt(index);
+  }
 
   @override
   void dispose() {
+    // Menghapus controller dari memori saat page ditutup agar tidak terjadi memory leak
     _addController.dispose();
     _editController.dispose();
     super.dispose();
@@ -601,29 +686,49 @@ class _NotesPageState extends State<NotesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Notes'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Assalamualaikum'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: widget.onThemeToggle,
+            icon: Icon(_notesBox.isEmpty ? Icons.dark_mode : Icons.dark_mode),
+          ),
+        ],
+      ),
       body: Column(
         children: [
-          // Bagian List: Menampilkan data secara real-time
           Expanded(
+            // ValueListenableBuilder: Widget ajaib yang akan membangun ulang tampilannya
+            // secara otomatis setiap kali data di dalam Hive (box) berubah.
             child: ValueListenableBuilder(
               valueListenable: _notesBox.listenable(),
               builder: (context, Box box, _) {
-                if (box.isEmpty) return const Center(child: Text('Belum ada catatan.'));
+                if (box.isEmpty) {
+                  return const Center(child: Text('Belum ada catatan.'));
+                }
 
                 return ListView.builder(
                   itemCount: box.length,
                   itemBuilder: (context, index) {
                     final note = box.getAt(index);
+                    final bool isDone = note['isDone'];
+
                     return ListTile(
                       leading: Checkbox(
-                        value: note['isDone'],
+                        value: isDone,
                         onChanged: (_) => _toggleDone(index),
                       ),
+                      // BAGIAN CORET TEKS: Menggunakan TextStyles.lineThrough jika isDone bernilai true
                       title: Text(
                         note['text'],
                         style: TextStyle(
-                          decoration: note['isDone'] ? TextDecoration.lineThrough : null,
+                          decoration: isDone
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none,
+                          color: isDone
+                              ? Colors.grey
+                              : null, // Warna memudar jika selesai
                         ),
                       ),
                       trailing: Row(
@@ -645,10 +750,13 @@ class _NotesPageState extends State<NotesPage> {
               },
             ),
           ),
-          
-          // Bagian Input: Pengetikan di bawah
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          // Area Input di bagian bawah
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -656,17 +764,18 @@ class _NotesPageState extends State<NotesPage> {
                     controller: _addController,
                     decoration: const InputDecoration(
                       hintText: 'Tambah catatan baru...',
-                      border: OutlineInputBorder(),
+                      border: InputBorder.none,
                     ),
+                    onSubmitted: (_) => _addNote(), // Tekan enter untuk tambah
                   ),
                 ),
-                const SizedBox(width: 8),
-                CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    onPressed: _addNote,
+                IconButton(
+                  icon: const Icon(
+                    Icons.add_circle,
+                    size: 30,
+                    color: Colors.blue,
                   ),
+                  onPressed: _addNote,
                 ),
               ],
             ),
@@ -676,5 +785,4 @@ class _NotesPageState extends State<NotesPage> {
     );
   }
 }
-
 ```
