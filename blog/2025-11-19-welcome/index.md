@@ -10,41 +10,40 @@ tags: [sintech, teknologi, open-source, engineering]
 
 **SinTech** (*Sinau Technology*) adalah ruang belajar, riset, dan pengembangan teknologi yang berfokus pada **open-source**, **rekayasa sistem**, dan **kemandirian teknologi**.
 
-Platform ini merepresentasikan perjalanan, pemikiran, dan visi dalam membangun teknologi dari **fondasi paling dasar** — mulai dari hardware hingga sistem operasi.
-
 ---
 
 ## Tentang Saya
 
 Nama saya **Wildan FQ** (20 tahun).
-Seorang **Hardware & Software Engineer** dengan fokus pada **low-level system**, **embedded system**, dan **arsitektur komputer**.
 
-Saya mempelajari komputer bukan hanya sebagai pengguna, tetapi sebagai sistem yang harus dipahami secara menyeluruh: bagaimana perangkat keras bekerja, bagaimana perangkat lunak berinteraksi dengannya, dan bagaimana keduanya membentuk satu kesatuan.
+Saat ini saya meneliti **penerapan fotonik dalam rangkaian elektronik** untuk membangun **komputer hybrid (elektronik–fotonik)**.  
+Selain itu, saya mengembangkan dan mengintegrasikan **Fuchsia OS** dengan arsitektur prosesor **open-source RISC-V** untuk mendukung komputasi fotonik generasi berikutnya.
 
 ---
 
 ## Keahlian Utama
 
-Fokus utama saya berada pada **fondasi teknologi**, bukan sekadar lapisan aplikasi.
+Fokus saya berada pada **fondasi teknologi**, bukan sekadar pada lapisan aplikasi.
 
 ### Software & System Engineering
 
-* **C++** — system programming, memory management, performance-oriented software
-  [https://en.cppreference.com/w/](https://en.cppreference.com/w/)
+- **C++** — system programming, memory management, performance-oriented software  
+  ↳ Dokumentasi: [cppreference](https://en.cppreference.com/w/)
 
-* **Dart** — application & tooling development
-  [https://dart.dev/docs](https://dart.dev/docs)
+- **Rust** — memory-safe system programming  
+  ↳ Website resmi: [rust-lang.org](https://www.rust-lang.org/)
 
-* **Fuchsia OS** — modern operating system architecture
-  [https://fuchsia.dev/](https://fuchsia.dev/)
+- **Dart** — application & tooling development  
+  ↳ Dokumentasi: [dart.dev/docs](https://dart.dev/docs)
 
-### Hardware & Computer Architecture
+- **Fuchsia OS** — modern operating system architecture  
+  ↳ Dokumentasi: [fuchsia.dev](https://fuchsia.dev/)
 
-* **RISC-V** — open instruction set architecture
-  [https://riscv.org/technical/specifications/](https://riscv.org/technical/specifications/)
+- **RISC-V** — open instruction set architecture  
+  ↳ Spesifikasi teknis: [riscv.org](https://riscv.org/technical/specifications/)
 
-* **Arduino** — embedded system & hardware prototyping
-  [https://docs.arduino.cc/](https://docs.arduino.cc/)
+- **Arduino** — embedded systems & hardware prototyping  
+  ↳ Dokumentasi: [docs.arduino.cc](https://docs.arduino.cc/)
 
 ---
 
@@ -52,25 +51,25 @@ Fokus utama saya berada pada **fondasi teknologi**, bukan sekadar lapisan aplika
 
 Pemahaman saya bertumpu pada ilmu dasar yang menjadi tulang punggung teknologi modern:
 
-* **Matematika** — logika, aljabar, pemodelan sistem
-* **Fisika** — elektronika dasar, mekanika, gelombang
-* **Kimia** — material dan sifat dasar komponen
+- **Matematika** — logika, aljabar, dan pemodelan sistem  
+- **Fisika** — elektronika dasar, mekanika, dan gelombang  
+- **Kimia** — material dan sifat dasar komponen  
 
-Fundamental ini menjadi landasan dalam memahami hardware, sistem komputasi, dan rekayasa teknologi secara menyeluruh.
+Fondasi ini menjadi dasar dalam memahami serta merekayasa sistem komputasi secara menyeluruh dan berkelanjutan.
 
 ---
 
 ## Bahasa
 
-* 🇮🇩 **Indonesia** — native
-* 🇬🇧 **English** — professional working proficiency
-* 🇸🇦 **Arabic** — basic to intermediate
+- 🇮🇩 **Indonesia** — Native  
+- 🇬🇧 **English** — Professional Working Proficiency  
+- 🇸🇦 **Arabic** — Basic to Intermediate  
 
 ---
 
 ## Visi
 
-Membangun **produk teknologi open-source** yang mandiri, transparan, dan mudah dipelajari — terutama bagi generasi muda yang ingin memahami teknologi dari akarnya, bukan hanya menggunakannya.
+Membangun **teknologi open-source** yang mandiri, transparan, dan mudah dipelajari — khususnya bagi generasi muda yang ingin memahami teknologi dari **akarnya**, bukan sekadar menggunakannya.
 
 ---
 
