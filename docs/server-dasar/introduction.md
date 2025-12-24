@@ -1,8 +1,8 @@
 ---
-sidebar_position: 7
+sidebar_position: 1
 ---
 
-# 🚀 Server
+# Intro
 
 Sebelumnya, kita menyimpan data di Local Storage, yang berarti data hanya tersimpan di memori HP. Masalahnya, jika aplikasi dihapus atau Anda ganti HP, data tersebut akan hilang. Inilah peran penting Server: sebagai pusat penyimpanan data di internet. Dengan server, data aplikasi Flutter Anda akan tersinkronisasi dan dapat diakses dari perangkat mana pun selama ada koneksi internet.
 
@@ -203,11 +203,3 @@ FutureBuilder<RecordModel>(
 ```
 
 Pada bagian ini, method `getStringValue` digunakan untuk mengambil nilai dari kolom `title` di database PocketBase. Jika kolom tersebut kosong atau `null`, Flutter akan menampilkan teks cadangan agar aplikasi tidak mengalami error.
-
----
-
-## Gambaran Alur Kerja Aplikasi
-
-Secara konseptual, alur kerja aplikasi ini sangat sederhana namun kuat. Ketika aplikasi dibuka, Flutter langsung memanggil server melalui service. Server kemudian mengembalikan data dari database. Flutter menunggu respons tersebut, dan setelah data diterima, tampilan UI diperbarui secara otomatis. Seluruh proses ini terjadi tanpa menghambat pengalaman pengguna.
-
----
