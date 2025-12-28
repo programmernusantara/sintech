@@ -1,8 +1,8 @@
 ---
-sidebar_position: 3
+sidebar_position: 10
 ---
 
-# ⌨️ User Input
+# User Input
 
 Handling User Input adalah proses ketika aplikasi menerima, membaca, dan mengolah data yang dimasukkan pengguna melalui komponen antarmuka (UI).  
 

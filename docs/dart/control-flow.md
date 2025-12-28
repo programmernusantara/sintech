@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# 🔁 Control Flow
+# Control Flow
 
 Dalam pemrograman, sering kali kita perlu membuat program merespons kondisi tertentu secara dinamis. Untuk itu, kita menggunakan **struktur kontrol alur (control flow)**.
 

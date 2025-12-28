@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# 🧾 Collection
+# Collection
 
 Dalam bahasa Dart, terdapat beberapa **struktur data koleksi** yang digunakan untuk menyimpan banyak nilai sekaligus.
 Setiap struktur data memiliki karakteristik dan kegunaannya masing-masing dalam pengelolaan data.

@@ -2,7 +2,7 @@
 sidebar_position: 7
 ---
 
-# 🧱 OOP
+# OOP
 
 Pemrograman Berorientasi Objek (Object Oriented Programming/OOP) adalah metode pemrograman yang menggunakan objek dan interaksinya untuk membangun aplikasi. Paradigma ini umum digunakan pada bahasa seperti Dart, Java, C++, dan Python.
 

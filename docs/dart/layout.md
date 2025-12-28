@@ -1,8 +1,8 @@
 ---
-sidebar_position: 2
+sidebar_position: 9
 ---
 
-# 📐 Layout
+# Layout
 
 Layout adalah fondasi dari setiap tampilan (UI) yang kamu lihat di aplikasi Flutter. Tanpa layout, elemen seperti **teks, tombol, gambar, card, atau ikon** tidak akan memiliki posisi, ukuran, atau susunan yang teratur.
 

@@ -2,7 +2,7 @@
 sidebar_position: 6
 ---
 
-# ⚙️ Function
+# Function
 
 Function (fungsi) di Dart adalah kumpulan kode yang menjalankan satu tugas tertentu.
 Fungsi membuat kode lebih rapi, tidak berulang, dan mudah dikelola.

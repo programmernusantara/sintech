@@ -1,8 +1,8 @@
 ---
-sidebar_position: 5
+sidebar_position: 12
 ---
 
-# 🧠 State Management
+# State Management
 
 State Management adalah cara Flutter untuk menyimpan, mengatur, dan memperbarui data yang digunakan untuk membangun tampilan (UI).
 

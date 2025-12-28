@@ -1,8 +1,8 @@
 ---
-sidebar_position: 6
+sidebar_position: 13
 ---
 
-# 📦 Local Storage
+# Local Storage
 
 Pada dasarnya, aplikasi yang dibuat dengan Flutter tidak secara otomatis menyimpan data ke dalam disk perangkat. Secara default, data hanya disimpan sementara di memori (RAM). Artinya, ketika pengguna menutup aplikasi atau me-restart perangkat, seluruh data tersebut akan hilang dan kembali ke kondisi default.
 

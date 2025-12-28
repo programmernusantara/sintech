@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# 🧩 Variable
+# Variable
 
 Dalam bahasa Dart, **variabel** digunakan untuk menyimpan data agar dapat digunakan kembali dalam program.  
 Setiap variabel memiliki **nama**, **tipe data**, dan **nilai**.  
