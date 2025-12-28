@@ -1,1 +1,1 @@
-Belajar coding itu mudah
+nusantara adalah platform edukasi open-source yang memiliki misi menyediakan pembelajaran gratis, terstruktur, dan mudah dipahami. SinTech menjadi wadah belajar mandiri dan kolaboratif bagi siapa pun yang ingin membangun pondasi teknologi yang kuat.
