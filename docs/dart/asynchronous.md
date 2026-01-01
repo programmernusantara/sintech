@@ -2,7 +2,7 @@
 sidebar_position: 8
 ---
 
-# Asynchronous
+# Async
 
 Asynchronous programming memungkinkan program melakukan beberapa operasi sekaligus tanpa harus menunggu operasi sebelumnya selesai. Ini sangat berguna ketika berhadapan dengan operasi lambat seperti HTTP request, file I/O, atau database.
 
