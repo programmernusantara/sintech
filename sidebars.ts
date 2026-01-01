@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
           `,
           defaultStyle: true,
         },
+        "dart/basic",
         "dart/variable",
         "dart/collection",
         "dart/control-flow",
