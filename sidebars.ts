@@ -72,9 +72,9 @@ const sidebars: SidebarsConfig = {
         },
         "dart/pocketbase",
         "dart/crud",
-        "dart/authentication",
         "dart/storage",
         "dart/realtime",
+        "dart/authentication",
       ],
     },
 
