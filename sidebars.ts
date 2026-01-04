@@ -5,89 +5,62 @@ const sidebars: SidebarsConfig = {
     {
       type: "doc",
       id: "intro",
-      label: "🏠 Welcome",
+      label: "🏠 Overview",
     },
 
+    // --- SECTION: MOBILE DEVELOPMENT ---
     {
       type: "category",
       label: "📱 Mobile Development",
       collapsed: false,
       items: [
-        // --- SEPARATOR: DART CORE ---
+        // SEPARATOR: DART
         {
           type: "html",
-          value: `
-            <div style="display: flex; align-items: center; margin: 15px 0 5px 0;">
-              <div style="flex-grow: 1; height: 1px; background: rgba(128,128,128,0.2);"></div>
-              <span style="padding: 0 10px; color: #888; font-weight: bold; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;">
-                ⚡ Dart Core
-              </span>
-              <div style="flex-grow: 1; height: 1px; background: rgba(128,128,128,0.2);"></div>
-            </div>
-          `,
-          defaultStyle: true,
+          value:
+            '<div style="margin: 12px 0 6px 0; height: 1px; background: linear-gradient(90deg, rgba(128,128,128,0.3) 0%, transparent 100%);"></div><b style="font-size: 10px; color: #888; letter-spacing: 1px; margin-left: 8px;">DART CORE</b>',
         },
-        "dart/basic",
-        "dart/variable",
-        "dart/collection",
-        "dart/control-flow",
-        "dart/function",
-        "dart/oop",
-        "dart/asynchronous",
+        { type: "doc", id: "dart/basic", label: "🎯 Getting Started" },
+        { type: "doc", id: "dart/variable", label: "📦 Variables" },
+        { type: "doc", id: "dart/collection", label: "📚 Collections" },
+        { type: "doc", id: "dart/control-flow", label: "🔄 Control Flow" },
+        { type: "doc", id: "dart/function", label: "⚙️ Functions" },
+        { type: "doc", id: "dart/oop", label: "💎 OOP Principles" },
+        { type: "doc", id: "dart/asynchronous", label: "⏳ Asynchronous" },
 
-        // --- SEPARATOR: FLUTTER ---
+        // SEPARATOR: FLUTTER
         {
           type: "html",
-          value: `
-            <div style="display: flex; align-items: center; margin: 20px 0 5px 0;">
-              <div style="flex-grow: 1; height: 1px; background: rgba(128,128,128,0.2);"></div>
-              <span style="padding: 0 10px; color: #888; font-weight: bold; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;">
-                📱 Frontend
-              </span>
-              <div style="flex-grow: 1; height: 1px; background: rgba(128,128,128,0.2);"></div>
-            </div>
-          `,
-          defaultStyle: true,
+          value:
+            '<div style="margin: 24px 0 6px 0; height: 1px; background: linear-gradient(90deg, rgba(2, 86, 155, 0.3) 0%, transparent 100%);"></div><b style="font-size: 10px; color: #888; letter-spacing: 1px; margin-left: 8px;">FLUTTER UI</b>',
         },
-        "dart/flutter",
-        "dart/layout",
-        "dart/navigation",
-        "dart/input",
-        "dart/state",
-        "dart/local_storage",
+        { type: "doc", id: "dart/flutter", label: "🚀 Framework Intro" },
+        { type: "doc", id: "dart/layout", label: "📐 Layouting" },
+        { type: "doc", id: "dart/navigation", label: "🗺️ Navigation" },
+        { type: "doc", id: "dart/input", label: "⌨️ User Input" },
+        { type: "doc", id: "dart/state", label: "🧪 State Management" },
+        { type: "doc", id: "dart/local_storage", label: "💾 Local Database" },
 
-        // --- SEPARATOR: BACKEND & STORAGE ---
+        // SEPARATOR: BACKEND
         {
           type: "html",
-          value: `
-            <div style="display: flex; align-items: center; margin: 20px 0 5px 0;">
-              <div style="flex-grow: 1; height: 1px; background: rgba(128,128,128,0.2);"></div>
-              <span style="padding: 0 10px; color: #888; font-weight: bold; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;">
-                🗄️ Backend
-              </span>
-              <div style="flex-grow: 1; height: 1px; background: rgba(128,128,128,0.2);"></div>
-            </div>
-          `,
-          defaultStyle: true,
+          value:
+            '<div style="margin: 24px 0 6px 0; height: 1px; background: linear-gradient(90deg, rgba(64, 209, 245, 0.3) 0%, transparent 100%);"></div><b style="font-size: 10px; color: #888; letter-spacing: 1px; margin-left: 8px;">BACKEND</b>',
         },
-        "dart/pocketbase",
-        "dart/crud",
-        "dart/storage",
-        "dart/realtime",
-        "dart/authentication",
+        { type: "doc", id: "dart/pocketbase", label: "☁️ PocketBase" },
+        { type: "doc", id: "dart/crud", label: "🔄 CRUD Operations" },
+        { type: "doc", id: "dart/storage", label: "📁 File Storage" },
+        { type: "doc", id: "dart/realtime", label: "🔔 Realtime Data" },
+        { type: "doc", id: "dart/authentication", label: "🔐 Auth System" },
       ],
     },
 
+    // --- SECTION: COMPUTER SCIENCE ---
     {
       type: "category",
-      label: "⚙️ Computer Engineering",
+      label: "⚙️ Computer Sciences",
       collapsed: true,
-      items: [
-        {
-          type: "autogenerated",
-          dirName: "zig",
-        },
-      ],
+      items: [{ type: "doc", id: "zig/lang", label: "⚡ Zig Programming" }],
     },
   ],
 };
