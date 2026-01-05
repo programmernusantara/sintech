@@ -13,10 +13,10 @@ const config: Config = {
   },
 
   url: "https://programmernusantara.github.io",
-  baseUrl: "/nusantara/",
+  baseUrl: "/nusantara-school/",
 
   organizationName: "programmernusantara",
-  projectName: "nusantara",
+  projectName: "nusantara-school",
   deploymentBranch: "gh-pages",
 
   // Kembalikan onBrokenMarkdownLinks ke sini sementara waktu
