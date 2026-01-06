@@ -2,7 +2,7 @@
 sidebar_position: 15
 ---
 
-# Auth
+# Authentication dengan google
 
 Dalam pengembangan aplikasi, keamanan akses dan perlindungan data pengguna merupakan prioritas utama. Aplikasi tidak boleh dapat diakses secara bebas tanpa verifikasi, terutama jika menyimpan data pribadi pengguna.
 
