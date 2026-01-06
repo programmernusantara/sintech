@@ -2,7 +2,7 @@
 sidebar_position: 14
 ---
 
-# Crud
+# Rest api crud notes
 
 Dokumentasi ini memberikan panduan langkah demi langkah dalam membangun aplikasi catatan (notes) sederhana menggunakan **Flutter** sebagai framework frontend dan **PocketBase** sebagai backend.
 

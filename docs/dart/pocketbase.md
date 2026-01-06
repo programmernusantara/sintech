@@ -2,7 +2,7 @@
 sidebar_position: 13
 ---
 
-# Pocketbase
+# Pocketbase backend all in one
 
 Sebelumnya, kita menyimpan data di Local Storage, yang berarti data hanya tersimpan di memori HP. Masalahnya, jika aplikasi dihapus atau Anda ganti HP, data tersebut akan hilang. Inilah peran penting Server: sebagai pusat penyimpanan data di internet. Dengan server, data aplikasi Flutter Anda akan tersinkronisasi dan dapat diakses dari perangkat mana pun selama ada koneksi internet.
 
